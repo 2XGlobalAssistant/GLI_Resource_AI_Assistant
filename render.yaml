@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: 2x-criteria-assistant
+    env: python
+    plan: free
+    region: oregon
+
+    # Point Render at your repo root
+    buildCommand: |
+      pip install -r requirements.txt
+
+    startCommand: |
+      gunicorn app:app --bind 0.0.0.0:$PORT
+
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false   # set this in the Render dashboard (not in the repo)
