@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gender Lens Investing AI Assistant (Beta)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    :root {
+      /* Base palette */
+      --page-bg: #ffffff;
+      --shell-bg: #fafafa;
+      --card-bg: #ffffff;
+      --border-subtle: #e5e7eb;
+      --text-main: #111827;
+      --text-muted: #4b5563;
+
+      --accent-green: #1b8a4b;
+      --accent-green-soft: #e6f4ed;
+      --accent-blue: #0e2e62;
+      --accent-blue-soft: #EAF0F6;
+      --accent-red: #b91c1c;
+      --accent-red-soft: #fef2f8;
+      --accent-gold: #dda63a;
+      --accent-gold-soft: #fff7e6;
+      --accent-violet: #5b21b6;
+      --accent-violet-soft: #f5f3ff;
+      --accent-rose: #a21942;
+      --accent-rose-soft: #fdf2f8;
+
+      /* Mapped vars for this page */
+      --2x-bg: transparent;
+      --2x-card-bg: var(--card-bg);
+      --2x-border: var(--border-subtle);
+      --2x-text: var(--text-main);
+      --2x-muted: var(--text-muted);
+      --2x-blue: var(--accent-blue);
+      --2x-red: var(--accent-red);
+      --2x-navy: var(--accent-blue);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--2x-bg);
+      color: var(--2x-text);
+    }
+
+    a {
+      color: var(--2x-blue);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+
+	.page {
+	  display: flex;
+	  flex-direction: column;
+	}
+	.aside-section p + ul {
+	  margin-top: 0px !important;
+	}
+
+	.aside-section p {
+	  margin-bottom: 0px !important;
+	}
+
+    main {
+      padding: 40px 16px 40px;
+    }
+
+	.container {
+	  max-width: 1120px;
+	  margin: 0 auto;
+	  display: grid;
+	  grid-template-columns: minmax(0, 2.4fr) minmax(0, 1fr);
+	  gap: 28px;
+	  align-items: stretch;
+	}
+
+    @media (max-width: 880px) {
+      .container {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: var(--2x-card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--2x-border);
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+      padding: 18px 20px 20px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px; 
+	  flex-wrap: wrap;
+	  align-items: flex-start;
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--2x-navy);
+      margin: 0;
+	  line-height: 1.2;
+    }
+
+    .chat-window {
+      border-radius: 16px;
+      border: 1px solid var(--2x-border);
+      background: #ffffff;
+      padding: 10px 12px;
+      height: 420px; 
+      max-height: 65vh;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    .chat-empty-hint {
+      font-size: 13px;
+      color: var(--2x-muted);
+      padding: 8px 4px;
+    }
+	
+	.mobile-privacy-note {
+	  display: none;
+	  font-size: 10px;
+	  line-height: 1.3;
+	  color: var(--2x-muted);
+	  padding: 2px 4px;
+	  margin-top: 4px;
+	  text-align: center;
+	}
+	.pill-label--beta {
+	  font-size: 10px;        
+	  padding: 3px 8px;       
+	  border-radius: 6px;
+	  font-weight: 500;       
+	  letter-spacing: 0.06em;
+	  margin-left: 8px;
+      background: #f1f5f9;
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+	}
+
+    .chat-bubble {
+      max-width: 90%;
+      padding: 9px 11px;
+      border-radius: 8px;
+      margin: 6px 0 2px;
+      font-size: 14px;
+      white-space: pre-wrap;
+    }
+
+    .chat-bubble.user {
+      margin-left: auto;
+      background: var(--2x-navy);
+	  color: #ffffff;
+      border-bottom-right-radius: 2px;
+    }
+
+    .chat-bubble.assistant {
+      margin-right: auto;
+      background: #ffffff;
+      border: 1px solid var(--2x-border);
+      border-bottom-left-radius: 2px;
+      color: var(--2x-text);
+      position: relative;
+    }
+
+    /* Traffic Light Badges */
+    .confidence-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+      letter-spacing: 0.05em;
+    }
+    .confidence-green { background: var(--accent-green-soft); color: var(--accent-green); border: 1px solid #bbf7d0; }
+    .confidence-yellow { background: var(--accent-gold-soft); color: #92400e; border: 1px solid #fde68a; }
+    .confidence-red { background: var(--accent-red-soft); color: var(--accent-red); border: 1px solid #fecaca; }
+
+
+    .chat-bubble.thinking {
+      margin-right: auto;
+      background: transparent;
+      border: none;
+      color: var(--2x-muted);
+      font-style: italic;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding-left: 2px;
+    }
+
+    .thinking-dots {
+      display: inline-flex;
+      gap: 2px;
+    }
+
+    .thinking-dots span {
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--2x-muted);
+      opacity: 0.3;
+      animation: blink 1.2s infinite;
+    }
+    .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0.2; transform: translateY(0); }
+      50% { opacity: 1; transform: translateY(-1px); }
+    }
+
+    .chat-input-row {
+	  display: flex;
+	  gap: 10px;
+	  margin-top: 12px;
+	  align-items: flex-end;
+	}
+
+	.chat-input-row textarea {
+	  flex: 1;
+	  resize: none;
+	  height: auto;
+	  min-height: 48px;      
+	  max-height: 200px;     
+	  overflow-y: hidden;    
+	  padding: 10px 12px;
+	  border-radius: 9px;
+	  border: 1px solid var(--2x-border);
+	  font-family: inherit;
+	  font-size: 14px;
+	  line-height: 1.4;
+	  outline: none;
+	  transition: height 0.12s ease, border 0.15s ease, box-shadow 0.15s ease;
+	  background: #ffffff;
+	}
+
+    .chat-input-row textarea:focus {
+      border-color: var(--2x-blue);
+      box-shadow: 0 0 0 1px rgba(0, 75, 135, 0.16);
+      background: #ffffff;
+    }
+
+    .chat-input-row button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #ffffff;
+      background: var(--2x-blue); 
+	  background-color: var(--2x-blue);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 6px 16px rgba(0, 75, 135, 0.25); 
+      transition: transform 0.07s ease, box-shadow 0.07s ease, opacity 0.08s ease;
+      white-space: nowrap;
+    }
+    .chat-input-row button:not(:disabled):hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(0, 75, 135, 0.35);
+    }
+    .chat-input-row button span.icon {
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    .aside-section {
+      font-size: 13px;
+      color: var(--2x-text);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px; /* slightly tighter */
+    }
+
+    /* REPLACED pill-label headers with clean text headings */
+    .aside-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--2x-navy);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0;
+      border: none;
+      background: none;
+      padding: 0;
+    }
+
+    .aside-section p {
+      margin: 0 0 6px;
+      color: var(--2x-muted);
+    }
+	
+	.aside-section p,
+	.aside-section li {
+	  line-height: 1.45;
+	}
+
+    .aside-section ul {
+      margin: 2px 0 8px 18px;
+      padding: 0;
+      color: var(--2x-muted);
+    }
+
+	/* 1. BOLD LABELS: Updated color and weight */
+    .settings-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;          /* Bold */
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--2x-muted);     /* Changed from muted to Navy */
+      margin-bottom: 6px; 
+    }
+    
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    #expertiseGroup.button-group {
+      flex-wrap: nowrap;
+    }
+    
+    .segment-btn {
+      flex: 1 1 auto;
+      border: 1px solid var(--border-subtle);
+      background: #ffffff;
+      color: var(--text-muted);
+      padding: 5px 10px; 
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    
+    .segment-btn:hover {
+      background: var(--accent-blue-soft);
+      border-color: #cbd5e1;
+      color: var(--2x-blue);
+    }
+    
+	.segment-btn.active {
+      background: var(--accent-blue-soft); /* Keeps the soft blue background */
+      color: var(--2x-muted);              /* <--- Sets text to muted gray */
+      border-color: #cbd5e1;               
+      box-shadow: none;
+      font-weight: 550;                    /* <--- Removes bolding (returns to base weight) */
+    }
+	
+	.settings-divider {
+      height: 1px;
+      background: var(--2x-border);
+      margin: 12px 0 12px 0;     /* Reduced bottom margin significantly */
+      opacity: 0.6;
+    }
+    /* -------------------------- */
+
+	.personalise-box {
+	  border: 1px solid rgba(0, 75, 135, 0.18);
+	  background: var(--accent-blue-soft);
+	  border-radius: 12px;
+	  padding: 12px;
+	  margin-bottom: 0px !important;
+	}
+
+	.personalise-box .aside-title {
+	  color: var(--2x-navy);
+	}
+
+	.personalise-box .settings-group label {
+	  color: var(--2x-navy);
+	}
+
+	.personalise-box p {
+	  color: var(--2x-muted);
+	}
+
+	.personalise-box .segment-btn {
+	  background: #ffffff;
+	}
+
+	.personalise-box .segment-btn.active {
+	  background: #ffffff;
+	  color: var(--2x-blue);
+	  border-color: var(--2x-blue);
+	  font-weight: 600;
+	}
+
+	.beta-feedback-box{
+	  border: 1px solid rgba(0, 75, 135, 0.18);
+	  background: var(--accent-blue-soft);
+	  border-radius: 12px;
+	  padding: 12px;
+	  margin-top: 0px;
+	}
+    
+    /* Keep pill style for internal badges like 'Beta Feedback' */
+	.beta-feedback-box .pill-label{
+	  margin-bottom: 6px;
+      display: inline-flex;
+	  align-items: center;
+	  gap: 6px;
+	  font-size: 11px;
+	  font-weight: 600;
+	  text-transform: uppercase;
+	  letter-spacing: 0.06em;
+	  padding: 4px 10px;
+	  border-radius: 6px;
+	  background: #ffffff;
+	  color: var(--2x-blue);
+	  border: 1px solid color-mix(in srgb, var(--2x-blue) 22%, transparent);
+	}
+	.beta-feedback-box p{
+	  margin-top: 0;
+	}	
+
+    .pill-label span.icon {
+      font-size: 13px;
+    }
+	@media (max-width: 480px) {
+	  .pill-label--beta {
+		font-size: 9px;
+		padding: 2px 7px;
+		letter-spacing: 0.05em;
+	  }
+	}
+	.notice {
+	  font-size: 12px;
+	  padding: 8px 10px;
+	  border-radius: 8px;
+	  border: 1px dashed var(--border-subtle);
+	  background: transparent;          
+	  color: var(--text-muted);
+	  margin-top: 12px;
+	}
+
+	.notice strong {
+	  color: var(--accent-blue);        
+	}
+	.chat-under-notes{
+	  margin-top: 10px;
+	  font-size: 11px;
+	  color: var(--2x-muted);
+	  line-height: 1.35;
+	}
+
+	.chat-under-privacy{
+	  margin-top: 6px;
+	  display: none; /* hidden on desktop */
+	}
+
+	/* Only show confidentiality line on mobile */
+	@media (max-width: 520px){
+	  .chat-under-privacy{
+		display: block;
+		}
+	  .chat-input-row textarea {
+	    height: 44px;
+	    min-height: 44px;
+	    max-height: 44px;
+	    overflow: hidden;    
+	    font-size: 16px;
+	    line-height: 24px;
+	    padding-top: 10px;
+	    padding-bottom: 10px;
+	  }
+	  .chat-input-row textarea::placeholder {
+	    opacity: 0;
+	  }
+	}
+    footer {
+      font-size: 11px;
+      color: var(--2x-muted);
+      padding: 10px 16px 18px;
+      text-align: center;
+    }
+
+    /* Basic content styling inside assistant bubbles */
+    .chat-bubble.assistant p {
+      margin: 4px 0;
+    }
+    .chat-bubble.assistant ul {
+      margin: 4px 0 4px 18px;
+      padding-left: 0;
+    }
+    .chat-bubble.assistant li {
+      margin-bottom: 2px;
+    }
+
+	.btn-primary-pill {
+	  border: none;
+	  border-radius: 8px;
+	  padding: 7px 18px;
+	  font-size: 13px;
+	  font-weight: 500;
+	  color: #ffffff;
+	  background: var(--2x-blue);
+	  cursor: pointer;
+	  display: inline-flex;
+	  align-items: center;
+	  gap: 6px;
+	  box-shadow: 0 6px 16px rgba(55, 90, 127, 0.25);
+	  transition: transform 0.07s ease, box-shadow 0.07s ease, opacity 0.08s ease;
+	  white-space: nowrap;
+	}
+
+	.btn-primary-pill:not(:disabled):hover {
+	  transform: translateY(-1px);
+	  box-shadow: 0 8px 20px rgba(55, 90, 127, 0.35);
+	}
+	.btn-primary-pill span.icon {
+	  font-size: 15px;
+	  line-height: 1;
+	}
+
+	@media (max-width: 520px) {
+	  main { padding: 16px 10px 16px; }
+	  aside.card { display: none; }
+	  .container { gap: 16px; }
+	  .mobile-privacy-note{ display: block; }
+	  .card { padding: 14px; border-radius: 14px; }
+	  .chat-window { height: clamp(220px, 35vh, 280px); }
+	  .chat-input-row { flex-direction: column; align-items: stretch; gap: 10px; }
+	  .chat-input-row textarea::placeholder { font-size: 12px; }
+	  .chat-input-row button { width: 100%; justify-content: center; padding: 12px 16px; }
+	  .pill-label--beta { font-size: 9px; padding: 2px 7px; letter-spacing: 0.05em; }
+	}
+</style>
+</head>
+<body>
+<div class="page">
+
+	<main>
+	  <div class="container">
+		<section class="card">
+		  <div class="card-header">
+			<h2 class="card-title">Gender Lens Investing Assistant</h2>
+			<div class="pill-label--beta">Beta</div>
+		  </div>
+
+		<div id="chatWindow" class="chat-window">
+			<div id="emptyHint" class="chat-empty-hint">
+			  This assistant provides practical how‑tos and best practices for integrating gender into investment strategy, due diligence, structuring, and monitoring across asset classes.
+			</div>
+		  </div>
+
+		  <form id="chatForm" class="chat-input-row">
+			<textarea
+			  id="questionInput"
+			  rows="4"
+			  placeholder="Example: “What gender KPIs should I include in an investment memo?”"
+			></textarea>
+			<button id="sendButton" type="submit">
+			  <span class="icon">➤</span>
+			  <span class="label-text">Ask</span>
+			</button>
+		  </form>
+
+		  <div class="notice" style="margin-top: 10px;">
+		  <strong>Important</strong>: this assistant is currently in <strong>beta</strong>. 2X Global cannot yet guarantee full privacy or confidentiality of information.
+		</div>
+		  
+		<div class="chat-under-notes">
+		  <div class="chat-under-privacy">
+			Please do not share confidential, commercially sensitive, or personally identifiable information. This tool is in beta and for guidance only. Use this as guidance, then confirm against your organization’s policies and any primary source documents.
+		  </div>
+		</div>		 
+
+		</section>
+
+		<aside class="card">
+		  
+		  <div class="aside-section personalise-box" style="margin-bottom: 10px;">
+		    <h3 class="aside-title">Personalise your answers</h3>      
+			<div class="settings-group">
+			  <label style="margin-bottom:2px;">Experience Level</label>
+			  <div class="button-group" id="expertiseGroup">
+			    <button type="button" class="segment-btn" data-value="newbie">Newbie</button>
+			    <button type="button" class="segment-btn active" data-value="general">Familiar</button>
+			    <button type="button" class="segment-btn" data-value="expert">Expert</button>
+			  </div>
+			</div>
+
+			<div class="settings-group" style="margin-top:6px;">
+			  <label style="margin-bottom:2px;">Organization</label>
+			  <div class="button-group" id="institutionGroup">
+			    <button type="button" class="segment-btn active" data-value="">Cross-cutting</button>
+			    <button type="button" class="segment-btn" data-value="Fund Manager">Fund</button>
+			    <button type="button" class="segment-btn" data-value="Bank">Bank</button>
+			    <button type="button" class="segment-btn" data-value="DFI">DFI</button>
+			    <button type="button" class="segment-btn" data-value="Enterprise">Company</button>
+			  </div>
+			</div>
+		  </div>
+
+          <div class="settings-divider"></div>
+
+		  <div class="aside-section">
+			<h3 class="aside-title">About this tool</h3>
+            
+			<p>
+			  An AI research companion for gender lens investors, drawing on leading GLI frameworks, toolkits, and practitioner guidance.
+			</p>
+			<ul style="margin-top:4px;">
+			  <li>Get answers to your GLI questions, from due diligence checklists, to best practices in portfolio monitoring</li>
+			  <li>Find relevant resources and tools</li>
+			  <li>Look up 2X Criteria leadership and employment thresholds by country and sector</li>
+			</ul>
+
+			<div class="beta-feedback-box">
+              <h3 class="aside-title" style="margin-bottom:8px;">Beta feedback</h3>
+ 
+			  <textarea
+				id="betaFeedback"
+				placeholder="Paste wrong or odd answers here and we'll look into it."
+				style="
+				  margin-top: 8px;
+				  width: 100%;
+				  min-height: 60px;
+				  padding: 10px 12px;
+				  border-radius: 8px;
+				  border: 1px solid var(--2x-border);
+				  font-family: inherit;
+				  font-size: 14px;
+				  resize: none;
+				  margin-bottom: 4px;
+				"
+			  ></textarea>
+
+			  <button id="submitFeedback" type="button" class="btn-primary-pill">
+				<span class="icon">➤</span>
+				<span class="label-text">Submit feedback</span>
+			  </button>
+
+			  <p
+				id="feedbackThanks"
+				style="
+				  display:none;
+				  font-size:12px;
+				  color:var(--2x-muted);
+				  margin-top:4px;
+				  margin-bottom:4px;
+				"
+			  >
+				Your feedback has been logged. Thank you!
+			  </p>
+			</div>
+			
+		  </div>
+		</aside>
+	  </div>
+	</main>
+</div>
+
+<script>
+  const BACKEND_BASE_URL = "";
+  const chatWindow = document.getElementById("chatWindow");
+  const emptyHint = document.getElementById("emptyHint");
+  const chatForm = document.getElementById("chatForm");
+  const questionInput = document.getElementById("questionInput");
+  const sendButton = document.getElementById("sendButton");
+  const sendButtonLabel = sendButton.querySelector(".label-text");
+  
+  // -- CONTEXT STATE --
+  let selectedExpertise = "general";
+  let selectedInstitution = ""; // empty string = General/All
+
+  // Button Logic
+  function setupSegmentedGroup(groupId, onUpdate) {
+    const group = document.getElementById(groupId);
+    if(!group) return;
+    const btns = group.querySelectorAll('.segment-btn');
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Clear active
+        btns.forEach(b => b.classList.remove('active'));
+        // Set active
+        btn.classList.add('active');
+        // Update state
+        onUpdate(btn.getAttribute('data-value'));
+      });
+    });
+  }
+
+  setupSegmentedGroup('expertiseGroup', val => selectedExpertise = val);
+  setupSegmentedGroup('institutionGroup', val => selectedInstitution = val);
+
+  // Simple in-browser history for context
+  let conversationHistory = [];
+  let qaHistory = [];              
+  let pendingQuestionForQA = null; 
+  let thinkingBubbleEl = null;
+  let hasAskedFirstQuestion = false;
+
+  function scrollToBottom() {
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  function postResize() {
+    try {
+      const h = Math.max(
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight
+      );
+      window.parent.postMessage(
+        { type: "twox-chatbot-resize", height: h },
+        "*"
+      );
+    } catch (e) {}
+  }
+
+  function createBubble(role, html, extraClasses = []) {
+    const bubble = document.createElement("div");
+    bubble.classList.add("chat-bubble", role);
+    extraClasses.forEach(c => bubble.classList.add(c));
+    bubble.innerHTML = html;
+    return bubble;
+  }
+  
+  function escapeHtml(str) {
+    if (!str) return "";
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function addUserMessage(text) {
+    if (emptyHint) emptyHint.style.display = "none";
+    const bubble = createBubble("user", escapeHtml(text));
+    chatWindow.appendChild(bubble);
+    scrollToBottom();
+    conversationHistory.push({ role: "user", content: text });
+    pendingQuestionForQA = text;
+    postResize();
+  }
+
+  function addThinkingBubble() {
+    if (thinkingBubbleEl) thinkingBubbleEl.remove();
+    thinkingBubbleEl = document.createElement("div");
+    thinkingBubbleEl.classList.add("chat-bubble", "assistant", "thinking");
+    thinkingBubbleEl.innerHTML = `
+      <span>Thinking</span>
+      <div class="thinking-dots">
+        <span></span><span></span><span></span>
+      </div>
+    `;
+    chatWindow.appendChild(thinkingBubbleEl);
+    scrollToBottom();
+  }
+
+  function formatMarkdown(text) {
+    if (!text) return "";
+
+    let t = escapeHtml(text);
+    t = t.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+	t = t.replace(
+	  /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+	  '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+	);
+    const lines = t.split(/\r?\n/);
+    let htmlParts = [];
+    let inList = false;
+
+    function closeListIfOpen() {
+      if (inList) {
+        htmlParts.push("</ul>");
+        inList = false;
+      }
+    }
+
+    for (let rawLine of lines) {
+      const line = rawLine.trim();
+
+      if (!line) {
+        closeListIfOpen();
+        htmlParts.push("<p></p>");
+        continue;
+      }
+
+      const bulletMatch = /^[-•]\s+(.+)$/.exec(line);
+      if (bulletMatch) {
+        const itemText = bulletMatch[1];
+        if (!inList) {
+          inList = true;
+          htmlParts.push("<ul>");
+        }
+        htmlParts.push("<li>" + itemText + "</li>");
+      } else {
+        closeListIfOpen();
+        htmlParts.push("<p>" + line + "</p>");
+      }
+    }
+
+    closeListIfOpen();
+    return htmlParts.join("");
+  }
+
+  function replaceThinkingWithAnswer(answerText, meta = {}) {
+    let html = "";
+    
+    // 1. Traffic Light Badge (If available in meta)
+    if (meta && meta.traffic_light && meta.traffic_light !== "gray") {
+        const color = meta.traffic_light; // green, yellow, red
+        html += `<div class="confidence-badge confidence-${color}">Confidence: ${color.toUpperCase()}</div>`;
+    }
+    
+    // 2. Render Main Text
+    html += formatMarkdown(answerText);
+
+    if (thinkingBubbleEl) {
+      thinkingBubbleEl.classList.remove("thinking");
+      thinkingBubbleEl.innerHTML = html;
+      thinkingBubbleEl = null;
+    } else {
+      const bubble = createBubble("assistant", html);
+      chatWindow.appendChild(bubble);
+    }
+
+    scrollToBottom();
+    conversationHistory.push({ role: "assistant", content: answerText });
+
+    if (pendingQuestionForQA) {
+      qaHistory.push({ question: pendingQuestionForQA, answer: answerText });
+      pendingQuestionForQA = null;
+      if (qaHistory.length > 12) qaHistory = qaHistory.slice(-12);
+    }
+    postResize();
+  }
+
+  function setThinkingState(isThinking) {
+    sendButton.disabled = false;
+    sendButtonLabel.textContent = "Ask";
+  }
+
+  function autoExpand(el) {
+    if (window.matchMedia("(max-width: 520px)").matches) return;
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+
+  // ----------------------------
+  // Chat submit handler
+  // ----------------------------
+  chatForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const question = questionInput.value.trim();
+    if (!question) {
+      questionInput.focus();
+      return;
+    }
+
+	if (!hasAskedFirstQuestion) {
+	  hasAskedFirstQuestion = true;
+	  questionInput.placeholder = "";
+	  questionInput.rows = 4;
+	  questionInput.style.height = "";
+	  autoExpand(questionInput);
+    }
+
+    addUserMessage(question);
+    questionInput.value = "";
+    autoExpand(questionInput);
+    setThinkingState(true);
+    addThinkingBubble();
+    
+    try {
+		const response = await fetch(BACKEND_BASE_URL + "/chat", {
+		  method: "POST",
+		  headers: { "Content-Type": "application/json" },
+		  body: JSON.stringify({
+			question: question, // Note: Single 'question' string, not a list
+			history: qaHistory,
+			expertise: selectedExpertise,
+			institution_type: selectedInstitution
+		  })
+		});
+
+	  if (!response.ok) {
+	    let errText = `HTTP ${response.status}`;
+	    try {
+	  	  const errJson = await response.json();
+		  if (errJson && (errJson.detail || errJson.error)) {
+		    errText = `${errJson.error || "Server error"}: ${errJson.detail || ""}`.trim();
+		  }
+	    } catch (_) {}
+	    throw new Error(errText);
+	  }
+
+	  const data = await response.json();
+	  // No more result0; we use 'data' directly
+	  const answer = data.answer || "Sorry, I was not able to generate a response.";
+	  const sourcesRaw = Array.isArray(data.sources) ? data.sources : [];
+	  const meta = data.meta || {};
+
+	  const sources = sourcesRaw.map((line) => {
+	    if (typeof line !== "string") return String(line || "");
+		return line.replace(/—\s*(https?:\/\/\S+)/i, "— [View]($1)");
+	  });
+
+	  const renderedText =
+	    sources.length > 0
+	  	  ? `${answer}\n\nSources:\n${sources.join("\n")}`
+		  : `${answer}\n\n(No sources)`;
+
+	  replaceThinkingWithAnswer(renderedText, meta);
+
+    } catch (err) {
+	  console.error(err);
+	  replaceThinkingWithAnswer(
+	    `Something went wrong while contacting the assistant.\n\n${String(err.message || err)}`
+	  );
+    } finally {
+	  setThinkingState(false);
+	  questionInput.focus();
+    }
+  });
+
+  questionInput.addEventListener("input", () => autoExpand(questionInput));
+
+  questionInput.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+      event.preventDefault();
+      chatForm.requestSubmit();
+    }
+  });
+
+  // ----------------------------
+  // Feedback button handler
+  // ----------------------------
+  // ----------------------------
+  // Google Forms entry IDs
+  // ----------------------------
+  const GF_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLSe0b28n2_2Bx1DCEulSFP7C4cIDvi3xo0Kv0Fpm5OvPnMS6mQ/formResponse";
+  const GF_ENTRIES = {
+    feedback:          "entry.76553751",
+    question:          "entry.775676579",
+    experienceLevel:   "entry.782101688",
+    organisationType:  "entry.1277992511",
+    timestamp:         "entry.541661517",
+  };
+
+  document.getElementById("submitFeedback").addEventListener("click", async () => {
+    const text = document.getElementById("betaFeedback").value.trim();
+    if (!text) return;
+    const btn = document.getElementById("submitFeedback");
+    const thanksEl = document.getElementById("feedbackThanks");
+    btn.disabled = true;
+
+    // Build the most recent question from conversation history
+    const lastQuestion = qaHistory.length > 0
+      ? qaHistory[qaHistory.length - 1].question
+      : "";
+
+    // Post to Google Forms (no-cors — response is opaque but submission lands)
+    const formData = new FormData();
+    formData.append(GF_ENTRIES.feedback,         text);
+    formData.append(GF_ENTRIES.question,          lastQuestion);
+    formData.append(GF_ENTRIES.experienceLevel,   selectedExpertise || "");
+    formData.append(GF_ENTRIES.organisationType,  selectedInstitution || "");
+    formData.append(GF_ENTRIES.timestamp,         new Date().toISOString());
+
+    try {
+      await fetch(GF_ACTION, {
+        method: "POST",
+        mode: "no-cors",   // Google Forms doesn't allow CORS — response is opaque but submission succeeds
+        body: formData,
+      });
+
+      // Also log to backend (fire-and-forget, don't block on failure)
+      fetch(BACKEND_BASE_URL + "/beta-feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          feedback: text,
+          page: "criteria-assistant",
+          timestamp: new Date().toISOString(),
+        }),
+      }).catch(() => {});
+
+      document.getElementById("betaFeedback").value = "";
+      thanksEl.style.display = "block";
+
+      clearTimeout(window._feedbackThanksTimer);
+      window._feedbackThanksTimer = setTimeout(() => {
+        thanksEl.style.display = "none";
+      }, 5000);
+
+    } catch (e) {
+      console.error(e);
+      alert("Sorry — feedback did not send. Please try again.");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+  // ----------------------------
+  // Final bootstrapping
+  // ----------------------------
+  autoExpand(questionInput);
+  window.addEventListener("load", () => {
+    postResize();
+    setTimeout(postResize, 150);
+    setTimeout(postResize, 600);
+  });
+  window.addEventListener("resize", postResize);
+</script>
+</body>
+</html>
