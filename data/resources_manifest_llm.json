@@ -1430,37 +1430,6 @@
     "best_for": "Best for policymakers and development finance practitioners trying to enhance gender equality through financial strategies.",
     "enriched_at": "2026-03-20T12:13:42.823674+00:00"
   },
-  "2024_OECD_f1c893a3-en": {
-    "title": "The surge of green, social, sustainability and sustainability-linked (GSSS) bonds in Latin America",
-    "publisher": "OECD",
-    "year": 2024,
-    "url": null,
-    "confidence": "high",
-    "evidence": {
-      "title_snippet": "The surge of green, social, sustainability and sustainability-linked (GSSS) bonds in Latin America and the Caribbean Facts and policy implications",
-      "publisher_snippet": "This work is published under the responsibility of the Secretary -General of the OECD.",
-      "year_snippet": "OECD Development Policy Papers November 2024 – No. 56",
-      "url_snippet": null
-    },
-    "notes": null,
-    "resource_id": "2024_OECD_f1c893a3-en",
-    "filenames": [
-      "2024_OECD_f1c893a3-en.pdf"
-    ],
-    "needs_review": false,
-    "audience": "bank,fund_manager",
-    "use_case": "This document is best used for understanding the growth and regulatory challenges of GSSS bonds in Latin America and the Caribbean, providing insights for policymakers and investors.",
-    "depth_type": "policy_brief",
-    "topic_tags": [
-      "gender_bonds",
-      "transaction_structuring",
-      "policy_context",
-      "investor_reporting"
-    ],
-    "quality_tier": "tier_1",
-    "best_for": "Best for policymakers and investors trying to navigate the GSSS bond market in Latin America.",
-    "enriched_at": "2026-03-20T12:13:47.081891+00:00"
-  },
   "2024_UN-Women_empowering-women-building-sustainable-assets": {
     "title": "Strengthening the depth of gender lens investing across asset classes",
     "publisher": "UN Women",
