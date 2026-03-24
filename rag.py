@@ -1,11 +1,14 @@
 import os
 import json
+import math
 import re
 import pickle
+import traceback
 from pathlib import Path, PureWindowsPath
 from typing import List, Dict, Any, Optional, Tuple
 
 import numpy as np
+import pandas as pd
 
 
 # ---------------------------------------------------------------------------
@@ -72,6 +75,401 @@ def _build_resource_catalogue(manifest: Dict[str, Dict[str, Any]]) -> str:
 
 
 RESOURCE_CATALOGUE: str = _build_resource_catalogue(MANIFEST)
+
+
+# ===========================================================================
+# Threshold lookup (inlined from thresholds.py)
+# Loads benchmarks.xlsx from the data/ subfolder and provides country/sector
+# detection + threshold lookup used in Steps 7 and 9 of rag_query().
+# ===========================================================================
+
+_THRESH_PROJECT_ROOT = Path(__file__).resolve().parent
+_THRESH_PATH = _THRESH_PROJECT_ROOT / "data" / "benchmarks.xlsx"
+
+THRESHOLDS_DF: Optional[pd.DataFrame] = None
+
+try:
+    THRESHOLDS_DF = pd.read_excel(_THRESH_PATH)
+    THRESHOLDS_DF.columns = [
+        c.strip().lower()
+        for c in THRESHOLDS_DF.columns
+        if isinstance(c, str)
+    ]
+    THRESHOLDS_DF = THRESHOLDS_DF.loc[:, [c for c in THRESHOLDS_DF.columns if c]]
+    print(f"[thresholds] Loaded OK: {len(THRESHOLDS_DF)} rows from {_THRESH_PATH}")
+except Exception as _e:
+    THRESHOLDS_DF = None
+    print(f"[thresholds] WARNING: could not load {_THRESH_PATH}: {_e}")
+
+
+def _thresh_safe_float(val):
+    if val is None:
+        return None
+    try:
+        if isinstance(val, str):
+            s = val.strip()
+            if not s:
+                return None
+            if s.endswith("%"):
+                return float(s[:-1].strip()) / 100.0
+            return float(s)
+        return float(val)
+    except Exception:
+        return None
+
+
+def _normalize_for_match(s: str) -> str:
+    s = (s or "").lower()
+    s = s.replace("\xa0", " ")  # non-breaking spaces from Excel
+    s = s.replace("&", " and ")
+    s = re.sub(r"\b([a-z])\.\s*([a-z])\.\b", r"\1\2", s)
+    s = re.sub(r"[\.\,\(\)\[\]\{\}\:\;\!\?\/\\\|]", " ", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+
+def _build_capital_city_aliases() -> Dict[str, str]:
+    try:
+        import geonamescache  # type: ignore
+        gc = geonamescache.GeonamesCache()
+        aliases: Dict[str, str] = {}
+        for _, c in gc.get_countries().items():
+            cap   = (c.get("capital") or "").strip()
+            cname = (c.get("name")    or "").strip()
+            if cap and cname:
+                aliases.setdefault(cap.lower(), cname)
+        return aliases
+    except Exception:
+        return {}
+
+
+_CAPITAL_CITY_TO_COUNTRY: Dict[str, str] = _build_capital_city_aliases()
+
+_COUNTRY_ALIASES: Dict[str, str] = {
+    "usa": "United States", "us": "United States",
+    "u.s.": "United States", "u.s.a.": "United States",
+    "united states of america": "United States",
+    "uk": "United Kingdom", "u.k.": "United Kingdom",
+    "tanzania": "Tanzania",
+    "dr congo": "Democratic Republic of the Congo",
+    "drc": "Democratic Republic of the Congo",
+    "bosnia": "Bosnia and Herzegovina",
+    "egypt": "Egypt, Arab Rep.",
+    "arab republic of egypt": "Egypt, Arab Rep.",
+    "iran": "Iran, Islamic Rep.",
+    "venezuela": "Venezuela, RB",
+    "russia": "Russian Federation",
+    "south korea": "Korea, Rep.", "republic of korea": "Korea, Rep.", "korea": "Korea, Rep.",
+    "north korea": "Korea, Dem. People's Rep.", "dprk": "Korea, Dem. People's Rep.",
+    "syria": "Syrian Arab Republic",
+    "laos": "Lao PDR",
+    "vietnam": "Viet Nam",
+    "yemen": "Yemen, Rep.", "republic of yemen": "Yemen, Rep.",
+    "congo": "Congo, Rep.", "republic of the congo": "Congo, Rep.",
+    "ivory coast": "\u00c9te d'Ivoire", "cote d'ivoire": "C\u00f4te d'Ivoire",
+    "gambia": "Gambia, The", "the gambia": "Gambia, The",
+    "bahamas": "Bahamas, The", "the bahamas": "Bahamas, The",
+    "micronesia": "Micronesia, Fed. Sts.",
+    "slovakia": "Slovak Republic",
+    "czech republic": "Czechia",
+    "brunei": "Brunei Darussalam",
+    "myanmar": "Myanmar", "burma": "Myanmar",
+    "cape verde": "Cabo Verde",
+    "swaziland": "Eswatini",
+
+    # UAE variants
+    "uae": "United Arab Emirates",
+    "u.a.e.": "United Arab Emirates",
+    "united arab emerites": "United Arab Emirates",  # common misspelling
+    "united arab emeriates": "United Arab Emirates",  # common misspelling
+    "dubai": "United Arab Emirates",
+    "abu dhabi": "United Arab Emirates",
+    "sharjah": "United Arab Emirates",
+
+    # Other common aliases missing from original list
+    "tanzania": "Tanzania",
+    "türkiye": "Turkey",
+    "turkey": "Turkey",
+    "taiwan": "Taiwan",
+    "palestine": "Palestine",
+    "west bank": "Palestine",
+    "hong kong": "Hong Kong",
+    "macau": "Macao SAR",
+    "macao": "Macao SAR",
+    "republic of congo": "Republic of the Congo",
+    "trinidad": "Trinidad and Tobago",
+    "tobago": "Trinidad and Tobago",
+    "saint lucia": "St. Lucia",
+    "st lucia": "St. Lucia",
+    "saint kitts": "St. Kitts and Nevis",
+    "st kitts": "St. Kitts and Nevis",
+    "saint vincent": "St. Vincent and the Grenadines",
+    "st vincent": "St. Vincent and the Grenadines",
+    "north korea": "Democratic People's Republic of Korea",
+    "south korea": "Republic of Korea",
+    "korea": "Republic of Korea",
+    "bolivia": "Bolivia",
+    "venezuela": "Bolivarian Republic\xa0of\xa0Venezuela",
+    "iran": "Islamic Republic\xa0of\xa0Iran",
+    "micronesia": "Federated\xa0States of\xa0Micronesia",
+    "sao tome": "São Tomé\xa0and Príncipe",
+    "sao tome and principe": "São Tomé\xa0and Príncipe",
+}
+
+_COUNTRY_ADJECTIVE_ALIASES: Dict[str, str] = {
+    "nigerian": "nigeria",
+    "kenyan": "kenya",
+    "tanzanian": "tanzania",
+    "bosnian": "bosnia and herzegovina",
+    "salvadorian": "el salvador",
+    "ghanaian": "ghana",
+    "ugandan": "uganda",
+    "rwandan": "rwanda",
+    "ethiopian": "ethiopia",
+    "zambian": "zambia",
+    "zimbabwean": "zimbabwe",
+    "bangladeshi": "bangladesh",
+    "pakistani": "pakistan",
+    "indonesian": "indonesia",
+    "vietnamese": "viet nam",
+    "peruvian": "peru",
+    "colombian": "colombia",
+    "mexican": "mexico",
+    "brazilian": "brazil",
+    "egyptian": "egypt, arab rep.",
+    "moroccan": "morocco",
+}
+
+_CANONICAL_INDUSTRIES: List[str] = []
+if THRESHOLDS_DF is not None and "industry" in THRESHOLDS_DF.columns:
+    _CANONICAL_INDUSTRIES = sorted({
+        str(i).strip()
+        for i in THRESHOLDS_DF["industry"].dropna()
+        if str(i).strip()
+    })
+
+
+def _classify_sector(text: str) -> str:
+    """LLM sector classifier -- handles any company type via general knowledge."""
+    if not text or not _CANONICAL_INDUSTRIES:
+        return "None"
+    try:
+        from openai import OpenAI as _OAI
+        _client = _OAI()
+        _model  = os.getenv("OPENAI_CHAT_MODEL", os.getenv("OPENAI_ROUTER_MODEL", "gpt-4o-mini"))
+        sectors_list = "\n".join(f"- {s}" for s in _CANONICAL_INDUSTRIES)
+        system_prompt = (
+            "You are an expert sector classifier for a gender-lens investing tool.\n\n"
+            "Read the user's question and identify the company's PRIMARY economic activity.\n"
+            "Map it to exactly ONE sector from the list below.\n\n"
+            "Rules:\n"
+            "1. Use your general knowledge -- do not require an exact keyword match.\n"
+            "   Examples: 'pizza company' -> accommodation and food service activities;\n"
+            "   'solar installer' -> electricity, gas, steam and air conditioning supply;\n"
+            "   'online marketplace' -> information and communication.\n"
+            "2. If a sector name is mentioned directly, use that.\n"
+            "3. If no company/business is described, return 'None'.\n"
+            "4. Return ONLY the exact sector label or 'None'. No explanation.\n\n"
+            f"Sectors:\n{sectors_list}"
+        )
+        resp = _client.chat.completions.create(
+            model=_model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user",   "content": text},
+            ],
+            max_tokens=20,
+            temperature=0,
+        )
+        raw = (resp.choices[0].message.content or "").strip()
+        for s in _CANONICAL_INDUSTRIES:
+            if s.lower() == raw.lower():
+                return s
+        for s in _CANONICAL_INDUSTRIES:
+            if s.lower() in raw.lower():
+                return s
+        return "None"
+    except Exception as e:
+        print(f"[thresholds] classify_sector error: {e}")
+        return "None"
+
+
+def detect_country_and_industry_from_text(text: str) -> Tuple[Optional[str], Optional[str]]:
+    """Detect (country, industry) from free text. Returns (None, None) if no match."""
+    if not text or THRESHOLDS_DF is None:
+        return None, None
+
+    t  = _normalize_for_match(text)
+    df = THRESHOLDS_DF
+
+    raw_countries = (
+        [str(c).strip() for c in df["country"].dropna() if str(c).strip()]
+        if "country" in df.columns else []
+    )
+    country_map  = {c.lower(): c for c in raw_countries}
+    country_key: Optional[str] = None
+
+    # 1) adjectival demonyms
+    for adj, canon_lower in _COUNTRY_ADJECTIVE_ALIASES.items():
+        if re.search(r"\b" + re.escape(adj) + r"\b", t):
+            country_key = country_map.get(canon_lower, canon_lower.title())
+            break
+
+    # 2) exact name from sheet (longest first)
+    if country_key is None:
+        for c in sorted(raw_countries, key=len, reverse=True):
+            if re.search(r"\b" + re.escape(c.lower()) + r"\b", t):
+                country_key = c
+                break
+
+    # 3) alias scan
+    if country_key is None:
+        for alias, canonical in _COUNTRY_ALIASES.items():
+            if re.search(r"\b" + re.escape(alias) + r"\b", t):
+                canon_low = canonical.lower()
+                country_key = country_map.get(canon_low, canonical)
+                break
+
+    # 4) capital city fallback
+    if country_key is None:
+        for token in re.findall(r"[a-zA-Z][a-zA-Z\-']+", text):
+            if token.lower() in _CAPITAL_CITY_TO_COUNTRY:
+                country_key = _CAPITAL_CITY_TO_COUNTRY[token.lower()]
+                break
+
+    # industry: exact match first
+    industry_key: Optional[str] = None
+    if "industry" in df.columns:
+        raw_inds = [str(v).strip() for v in df["industry"].dropna() if str(v).strip()]
+        for ind in sorted(raw_inds, key=len, reverse=True):
+            if re.search(r"\b" + re.escape(ind.lower()) + r"\b", t):
+                industry_key = ind
+                break
+
+    # industry: LLM fallback
+    if industry_key is None:
+        sector = _classify_sector(text)
+        if sector != "None":
+            industry_key = sector
+
+    return country_key, industry_key
+
+
+def lookup_threshold(text: str):
+    """Return (records, country_key, industry_key) or None."""
+    if THRESHOLDS_DF is None:
+        print("[thresholds] lookup_threshold: THRESHOLDS_DF is None")
+        return None
+
+    country_key, industry_key = detect_country_and_industry_from_text(text)
+    print(f"[thresholds] detected country={country_key!r}  industry={industry_key!r}")
+
+    if not country_key:
+        return None
+
+    df = THRESHOLDS_DF
+    df_country = df[df["country"].astype(str).str.strip().str.lower()
+                    == str(country_key).strip().lower()]
+    if df_country.empty:
+        return None
+
+    if industry_key and "industry" in df.columns:
+        df_ind = df_country[df_country["industry"].astype(str).str.strip().str.lower()
+                            == str(industry_key).strip().lower()]
+        df_use = df_ind if not df_ind.empty else df_country
+    else:
+        df_use = df_country
+
+    records = []
+    for rec in df_use.to_dict(orient="records"):
+        clean = {}
+        for k, v in rec.items():
+            if isinstance(v, float) and math.isnan(v):
+                v = None
+            elif hasattr(v, "item"):
+                v = v.item()
+            clean[k] = v
+        records.append(clean)
+    return records, country_key, industry_key
+
+
+def summarise_thresholds(threshold_rows) -> Dict[str, Any]:
+    summary: Dict[str, Any] = {
+        "country": None, "industry": None,
+        "board_or_investment_committee": None,
+        "senior_leadership": None, "employees": None,
+    }
+    if not threshold_rows:
+        return summary
+    records = [r for r in threshold_rows if isinstance(r, dict)]
+    summary["country"]  = next((r.get("country")  for r in records if r.get("country")),  None)
+    summary["industry"] = next((r.get("industry") for r in records if r.get("industry")), None)
+
+    uid_field = next((f for f in ["unique id", "unique_id", "uid"]
+                      if any(f in r for r in records)), None)
+
+    def _thr(rec):
+        v = _thresh_safe_float(rec.get("threshold"))
+        return None if (v is None or (isinstance(v, float) and math.isnan(v))) else v
+
+    def _pick(label, key):
+        if not uid_field:
+            return
+        for rec in records:
+            if str(rec.get(uid_field, "")).strip().lower() == label:
+                summary[key] = _thr(rec)
+                return
+
+    _pick("board or investment committee", "board_or_investment_committee")
+    _pick("senior leadership",             "senior_leadership")
+    _pick("employees",                     "employees")
+
+    if any(summary[k] is not None for k in
+           ["board_or_investment_committee", "senior_leadership", "employees"]):
+        return summary
+
+    for rec in records:
+        ind = str(rec.get("indicator", "")).strip().lower()
+        v   = _thr(rec)
+        if not ind or v is None:
+            continue
+        if "board" in ind or "investment committee" in ind:
+            summary["board_or_investment_committee"] = v
+        elif "senior" in ind or "management" in ind or "leadership" in ind:
+            summary["senior_leadership"] = v
+        elif "employee" in ind or "workforce" in ind or "staff" in ind:
+            summary["employees"] = v
+    return summary
+
+
+def format_threshold_bullets(threshold_summary: dict) -> str:
+    """Clean header + bulleted thresholds, matching app.py output style."""
+    if not threshold_summary:
+        return ""
+    country  = (threshold_summary.get("country")  or "").strip()
+    industry = (threshold_summary.get("industry") or "").strip()
+
+    def _fmt(val):
+        f = _thresh_safe_float(val)
+        if f is None:
+            return None
+        pct = f * 100 if f <= 1.5 else f
+        return f"{int(round(pct))}%" if abs(pct - round(pct)) < 1e-9 else f"{pct:.1f}%"
+
+    bullets = []
+    bic = _fmt(threshold_summary.get("board_or_investment_committee"))
+    sl  = _fmt(threshold_summary.get("senior_leadership"))
+    emp = _fmt(threshold_summary.get("employees"))
+    if bic: bullets.append(f"- Board / Investment Committee: {bic}")
+    if sl:  bullets.append(f"- Senior leadership: {sl}")
+    if emp: bullets.append(f"- Employees: {emp}")
+
+    if not bullets:
+        return ""
+    hc = country  if country  else "the selected country"
+    hi = industry.lower() if industry else "the selected sector"
+    return f"For the {hi} sector in {hc}, the 2X benchmark thresholds are:\n" + "\n".join(bullets)
+
 
 
 def load_manifest(manifest_path: Path) -> dict:
@@ -360,6 +758,7 @@ ROUTE_LABELS = [
     "guidance",
     "comparison",
     "resources",
+    "find_resource",
     "benchmarks",
     "qualification",
     "evidence",
@@ -405,6 +804,7 @@ def _route_question_llm(
             "- qualification: user provides their own percentages/data OR uses possessives (we/our/they/their/investee) to ask if they meet criteria\n"
             "- implementation: 'can X qualify' or 'what does X need' with NO user data — conceptual, not situational\n"
             "- evidence: what documentation/proof to collect for a claim\n"
+            "- find_resource: user wants a reading recommendation — best guide, toolkit, or document to learn from\n"
             "- resources: explicit request for templates, boilerplate, sample language, draft, checklists, ic memo\n"
             "- comparison: compare A vs B, trade-offs, difference, differ\n"
             "- guidance: definitions, interpretation, overviews, explainers, 'what does X mean', general help\n"
@@ -470,13 +870,30 @@ def _route_question(question: str, response_mode: Optional[str] = None) -> str:
     ]) or re.search(r"\bcompar", q):   # catches compare/compared/comparing
         return "comparison"
 
-    # ── 2. Resources — explicit deliverable request ───────────────────────────
+    # ── 2a. Find resource — reading recommendation (must run BEFORE resources) ─
+    # Explicit resource-finding phrases. Checked first so "find me a resource"
+    # and "recommend a guide" don't fall into the resources deliverable route.
+    if any(tok in q for tok in [
+        "find me a resource", "find a resource", "find me resources",
+        "recommend a", "best resource", "good resource", "useful resource",
+        "helpful resource", "any resources", "are there resources",
+        "what should i read", "what to read", "point me to",
+        "where can i learn", "suggest a", "good guide", "good toolkit",
+        "useful guide", "useful toolkit", "any guides", "any toolkits",
+        "reading list", "further reading",
+    ]) or re.search(
+        r"\b(recommend|suggest)\b.{0,30}\b(resource|guide|toolkit|document|reading)\b", q
+    ):
+        return "find_resource"
+
+    # ── 2b. Resources — explicit deliverable request ──────────────────────────
     # Use word boundary for "draft" / "terms of reference"; avoid "tor" substring
     # Exclude "policy" / "procedure" / "outline" — too generic (fires on "ESG policy in place")
+    # "give me a" removed — too broad, was catching "give me a good resource"
     if any(tok in q for tok in [
         "template", "sample language", "boilerplate", "checklist",
         "model clause", "sample covenant", "ic memo",
-        "write me", "can you draft", "can you write", "give me a",
+        "write me", "can you draft", "can you write",
     ]) or re.search(r"\b(draft|terms of reference)\b", q):
         return "resources"
 
@@ -1266,7 +1683,6 @@ def _build_answer_brief(
     # ── Threshold summary ─────────────────────────────────────────────────────
     if threshold_hit:
         try:
-            from thresholds import summarise_thresholds
             threshold_rows, country_key, industry_key = threshold_hit
             summary = summarise_thresholds(threshold_rows)
             brief["threshold_summary"] = {
@@ -1333,6 +1749,42 @@ def _narrate_brief(brief: Dict[str, Any]) -> Dict[str, Any]:
             "Write for a practitioner audience — someone who knows the space but wants "
             "clear, actionable information without unnecessary hedging or padding."
         )
+
+    # ── Entity-type framing ─────────────────────────────────────────────────────────────
+    # Tells the LLM whose shoes to write from so it doesn't default to
+    # investor framing for company/enterprise questions.
+    _inst = (user_context.get("institution_type") or "").strip().lower()
+    if _inst in ("enterprise", "company"):
+        entity_framing = (
+            "IMPORTANT: The user is an enterprise or company (not an investor, fund, or bank). "
+            "Frame all answers from the perspective of a company integrating gender into its "
+            "own operations, workforce, products, and supply chain. "
+            "Do NOT use investor language: do not mention 'deal origination', 'portfolio management', "
+            "'investees', 'due diligence on investments', 'responsible exits', or 'LP reporting'. "
+            "Focus instead on: workforce practices, leadership diversity, product/service design, "
+            "community engagement, supplier diversity, and internal governance."
+        )
+    elif _inst in ("fund manager", "fund"):
+        entity_framing = (
+            "The user is a fund manager. Frame answers from the perspective of a fund "
+            "applying gender lens to investment selection, due diligence, portfolio monitoring, "
+            "and LP reporting."
+        )
+    elif _inst in ("bank",):
+        entity_framing = (
+            "The user is a bank or financial institution. Frame answers around lending, "
+            "client screening, financial products, and institutional gender policies."
+        )
+    elif _inst in ("dfi",):
+        entity_framing = (
+            "The user is a DFI. Frame answers around development mandates, concessional finance, "
+            "blended structures, and portfolio-level gender integration."
+        )
+    else:
+        entity_framing = ""
+
+    if entity_framing:
+        tone = tone + "\n\n" + entity_framing
 
     # ── Coverage signal ───────────────────────────────────────────────────────
     n   = len(top_chunks)
@@ -1536,7 +1988,13 @@ def _narrate_brief(brief: Dict[str, Any]) -> Dict[str, Any]:
         "- Do not use filenames, publishers, or page numbers in your answer text.\n"
         "- Do not write a Sources section — that is appended separately.\n"
         "- Do not reproduce internal field names (direct_status, esg_status, NEEDS INFO, "
-        "UNCONFIRMED, structural_blockers) in your answer.\n\n"
+        "UNCONFIRMED, structural_blockers) in your answer.\n"
+        "- After your answer, on a new line output exactly: "
+        "SOURCES_JSON: followed by a JSON array of the 2-3 most valuable documents "
+        "for this practitioner to read. "
+        "Each element: {resource_id: <exact id>, reason: <max 12 words>}. "
+        "Use only resource_ids from the CATALOGUE below. No markdown fences.\n\n"
+        f"CATALOGUE:\n{RESOURCE_CATALOGUE}\n\n"
         f"RETRIEVAL: {coverage_instruction}\n"
     )
 
@@ -1585,42 +2043,64 @@ def _narrate_brief(brief: Dict[str, Any]) -> Dict[str, Any]:
         traffic_light = {"high": "green", "medium": "yellow", "low": "red"}.get(lvl, "gray")
     answer_text = _strip_confidence_line(answer_text)
 
-    # ── Curated sources (LLM-selected from full library) ─────────────────────
-    institution_type = (user_context or {}).get("institution_type")
-    curated = _curate_sources(
-        question=question,
-        answer=answer_text,
-        route=route,
-        institution_type=institution_type,
-        top_chunks=top_chunks,
-    )
+    # Benchmarks answers come from the Excel lookup, not the RAG corpus,
+    # so no document sources are relevant or shown.
+    if route == "benchmarks":
+        return {
+            "answer":    answer_text,
+            "sources":   [],
+            "retrieved": [],
+            "curated":   [],
+            "meta": {
+                "route":          route,
+                "coverage":       coverage,
+                "traffic_light":  traffic_light,
+                "expertise_used": expertise,
+            },
+        }
 
-    if curated:
-        # Render as citation strings for the sources list
-        sources_list = []
-        for doc in curated:
-            pub  = doc.get("publisher") or ""
-            year = doc.get("year")
-            title = doc.get("title") or doc["resource_id"]
-            url  = doc.get("url") or ""
-            reason = doc.get("reason") or ""
+    # ── Parse SOURCES_JSON from answer — no second API call needed ───────────
+    # _narrate_brief now asks the model to append SOURCES_JSON: [...] after its
+    # answer. We split it out here, resolve IDs against MANIFEST, and render.
+    sources_list: List[str] = []
+    curated: List[Dict[str, Any]] = []
 
-            left  = f"{pub} ({year})" if pub and year else (pub or (f"({year})" if year else ""))
-            label = f"{left} – {title}" if left else title
-            if url:
-                label += f" — {url}"
-            if reason:
-                label += f"\n  → {reason}"
-            sources_list.append(f"- {label}")
-    else:
-        # Fallback: retrieval-based sources
+    if "SOURCES_JSON:" in answer_text:
+        _parts = answer_text.split("SOURCES_JSON:", 1)
+        answer_text = _parts[0].strip()
+        try:
+            _json_str = re.sub(
+                r"^```(?:json)?\s*|\s*```$", "", _parts[1].strip(),
+                flags=re.MULTILINE
+            ).strip()
+            for _item in json.loads(_json_str):
+                _rid = (_item.get("resource_id") or "").strip()
+                if not _rid or _rid not in MANIFEST:
+                    continue
+                _me = MANIFEST[_rid]
+                _pub    = _me.get("publisher") or ""
+                _year   = _me.get("year")
+                _title  = _me.get("title") or _rid
+                _url    = _me.get("url") or ""
+                _reason = (_item.get("reason") or "").strip()
+                _left   = f"{_pub} ({_year})" if _pub and _year else (_pub or (f"({_year})" if _year else ""))
+                _label  = f"{_left} – {_title}" if _left else _title
+                if _url:    _label += f" — {_url}"
+                if _reason: _label += f"\n  → {_reason}"
+                sources_list.append(f"- {_label}")
+                curated.append(_me)
+        except Exception:
+            pass  # Fall through to retrieval-based sources
+
+    # Fallback if model omitted SOURCES_JSON (benchmarks never shows sources)
+    if not sources_list and route != "benchmarks":
         sources_list = brief["sources_block"].split("\n") if brief["sources_block"] else []
 
     return {
         "answer":    answer_text,
         "sources":   sources_list,
         "retrieved": [] if curated else _structured_retrieved(top_chunks),
-        "curated":   curated or [],
+        "curated":   curated,
         "meta": {
             "route":          route,
             "coverage":       coverage,
@@ -1628,7 +2108,6 @@ def _narrate_brief(brief: Dict[str, Any]) -> Dict[str, Any]:
             "expertise_used": expertise,
         },
     }
-
 
 # ---------------------------------------------------------------------------
 # Stub kept for import compatibility — new code paths go through _narrate_brief
@@ -1887,6 +2366,101 @@ def answer_question(
     return _narrate_brief(brief)
 
 
+# ---------------------------------------------------------------------------
+# find_resource route
+# Skips RAG retrieval entirely. One gpt-4o-mini call against the full
+# RESOURCE_CATALOGUE to pick and narrate the 2 best documents.
+# ---------------------------------------------------------------------------
+
+def _find_resource_llm(
+    question: str,
+    institution_type: Optional[str],
+) -> Dict[str, Any]:
+    """Select and narrate the top 2 resources. Returns a full result dict."""
+    model = os.getenv("OPENAI_ROUTER_MODEL", os.getenv("OPENAI_CHAT_MODEL", "gpt-4o-mini"))
+    audience_hint = f"\nUser institution type: {institution_type}" if institution_type else ""
+
+    system = (
+        "You are a research librarian for a gender lens investing resource library.\n"
+        "A practitioner wants a reading recommendation.\n\n"
+        "Your task:\n"
+        "1. Select the 2 documents from the CATALOGUE below that best answer their question.\n"
+        "2. For each, write 2-3 sentences: what the document is, who published it, and "
+        "specifically why it is the right fit for this question.\n"
+        "3. End with one concrete action the user should take when reading the top pick \n"  "   (e.g. go straight to chapter X, use the checklist on page Y, apply the framework to Z).\n\n"
+        "Rules:\n"
+        "- Prioritise relevance to the specific question over general quality.\n"
+        "- Prefer tier_1 documents and post-2020 publications unless an older one is uniquely relevant.\n"
+        "- Match the user's institution type when possible.\n"
+        "- Be direct — no hedging, no 'it depends', no bullet lists.\n"
+        "- Do NOT mention document IDs or filenames.\n"
+        "- Write in flowing prose.\n\n"
+        "After your prose answer, on a new line output:\n"
+        "SOURCES_JSON: [{resource_id: <id>, reason: <max 12 words>}]\n\n"
+        f"CATALOGUE:\n{RESOURCE_CATALOGUE}"
+    )
+
+    try:
+        from openai import OpenAI as _OAI2
+        _fr_client = _OAI2()
+        resp = _fr_client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user",   "content": f"Question: {question}{audience_hint}"},
+            ],
+            temperature=0.0,
+        )
+        raw = (resp.choices[0].message.content or "").strip()
+    except Exception as e:
+        print(f"[find_resource] LLM call failed: {e}")
+        return {
+            "answer":    "I wasn't able to search the resource library right now. Please try again.",
+            "sources":   [],
+            "retrieved": [],
+            "meta":      {"route": "find_resource", "traffic_light": "red"},
+        }
+
+    # Split prose from SOURCES_JSON
+    answer_text = raw
+    sources_list: List[str] = []
+
+    if "SOURCES_JSON:" in raw:
+        parts = raw.split("SOURCES_JSON:", 1)
+        answer_text = parts[0].strip()
+        try:
+            import re as _re
+            json_str = _re.sub(
+                r"^```(?:json)?\s*|\s*```$", "", parts[1].strip(), flags=_re.MULTILINE
+            ).strip()
+            # Normalise keys: resource_id and reason may be unquoted
+            json_str = _re.sub(r'(\w+)(?=\s*:)', r'"\1"', json_str)
+            for item in json.loads(json_str):
+                rid = (item.get("resource_id") or "").strip()
+                if not rid or rid not in MANIFEST:
+                    continue
+                me = MANIFEST[rid]
+                pub   = me.get("publisher") or ""
+                year  = me.get("year")
+                title = me.get("title") or rid
+                url   = me.get("url") or ""
+                reason = (item.get("reason") or "").strip()
+                left  = f"{pub} ({year})" if pub and year else (pub or str(year))
+                label = f"{left} \u2013 {title}" if left else title
+                if url:    label += f" \u2014 {url}"
+                if reason: label += f"\n  \u2192 {reason}"
+                sources_list.append(f"- {label}")
+        except Exception:
+            pass
+
+    return {
+        "answer":    answer_text,
+        "sources":   sources_list,
+        "retrieved": [],
+        "meta":      {"route": "find_resource", "traffic_light": "green"},
+    }
+
+
 def rag_query(
     question: str,
     index: Dict[str, Any],
@@ -1939,6 +2513,13 @@ def rag_query(
         response_mode=response_mode,
         institution_type=institution_type,
     )
+
+    # Step 1.5: find_resource — skip retrieval, call LLM on full catalogue.
+    if route == "find_resource":
+        return _find_resource_llm(
+            question=question,
+            institution_type=institution_type,
+        )
 
     # Step 2: Decide how many document chunks to retrieve.
     # Complex or multi-part questions retrieve more chunks for broader context.
@@ -2022,7 +2603,6 @@ def rag_query(
     threshold_hit     = None
 
     try:
-        from thresholds import lookup_threshold, summarise_thresholds, format_threshold_bullets
         t_score = score_threshold_intent(question)
 
         should_try = (t_score >= 3) or (route in {"qualification", "benchmarks", "resources"})
@@ -2051,41 +2631,61 @@ def rag_query(
     # the thresholds in step 9 or in the qualification route.
     provided_pcts = _extract_percentages_with_context(question)
 
-    # Step 9: If the question is purely a threshold lookup (no open-ended
-    # reasoning needed), return the formatted benchmarks directly without
-    # calling the main LLM. This is faster and cheaper.
+    # Step 9: Pure threshold lookup -- no qualification/alignment intent.
+    # Returns a formatted string directly; no LLM call needed.
     if route == "benchmarks" and not re.search(
         r"\b(qualif(y|ies|ication)?|aligned|alignment|eligible|eligibility)\b",
         question.lower(),
     ):
+
+        # No threshold hit: context-aware clarification request
         if not threshold_hit:
+            try:
+                _det_country, _det_industry = detect_country_and_industry_from_text(question)
+            except Exception:
+                _det_country = _det_industry = None
+
+            if _det_country and _det_industry:
+                _msg = (
+                    f"I captured **{_det_industry}** in **{_det_country}**, "
+                    "but couldn't match that combination to the thresholds database. "
+                    "Try using the exact sector label from "
+                    "https://2xchallenge.org/2xcriteria, or paste it here."
+                )
+            elif _det_country:
+                _msg = (
+                    f"I captured the country (**{_det_country}**), but not the sector. "
+                    "What sector should I use "
+                    "(e.g., agriculture, manufacturing, finance and insurance)?"
+                )
+            elif _det_industry:
+                _msg = (
+                    f"I captured the sector (**{_det_industry}**), but not the country. "
+                    "Which country should I use?"
+                )
+            else:
+                _msg = (
+                    "I couldn't identify a country or sector from your question. "
+                    "Please tell me the country and sector "
+                    "(or say \u2018Overall\u2019 for the sector) and I'll look up the thresholds."
+                )
             return {
-                "answer": (
-                    "I can look up benchmark thresholds, but I couldn't detect a country "
-                    "(and ideally a sector) in your question.\n\n"
-                    "Please reply with:\n"
-                    "- Country\n"
-                    "- Sector (or say \u201cOverall\u201d)\n"
-                    "- Which indicator: Board/IC, Senior Leadership, or Employees\n"
-                ),
+                "answer":    _msg,
                 "sources":   [],
                 "retrieved": [],
                 "meta":      {"route": "benchmarks", "traffic_light": "red"},
             }
 
-        from thresholds import summarise_thresholds, format_threshold_bullets
+        # Threshold hit: render directly -- no LLM needed
         threshold_rows, country_key, industry_key = threshold_hit
         summary = summarise_thresholds(threshold_rows)
-        bullets = format_threshold_bullets(summary)
+        answer  = format_threshold_bullets(summary)
+        if not answer:
+            answer = "No benchmark values found for that country/sector combination."
+        else:
+            answer += "\n\nShare the investee\u2019s current percentages and I\u2019ll compare them against these thresholds."
         return {
-            "answer": (
-                f"Benchmark thresholds for **{summary.get('country') or country_key}**"
-                + (f" / **{summary.get('industry') or industry_key}**"
-                   if (summary.get("industry") or industry_key) else "")
-                + ":\n"
-                + (bullets or "\n- (No benchmark values found)")
-                + "\n\nIf you want, paste the investee's current percentages and I'll compare them."
-            ),
+            "answer":    answer,
             "sources":   [],
             "retrieved": [],
             "meta":      {"route": "benchmarks", "traffic_light": "green"},
