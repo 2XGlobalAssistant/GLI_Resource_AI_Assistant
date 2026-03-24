@@ -1398,38 +1398,6 @@
     "best_for": "Best for banks trying to develop and implement gender equality strategies.",
     "enriched_at": "2026-03-20T12:13:38.017919+00:00"
   },
-  "2024_OECD_Development-Finance-for-Gender-Equality": {
-    "title": "Development Finance for Gender Equality",
-    "publisher": "OECD",
-    "year": 2024,
-    "url": null,
-    "confidence": "high",
-    "evidence": {
-      "title_snippet": "Development Finance for Gender Equality 2024",
-      "publisher_snippet": "OECD",
-      "year_snippet": "2024",
-      "url_snippet": null
-    },
-    "notes": null,
-    "resource_id": "2024_OECD_Development-Finance-for-Gender-Equality",
-    "filenames": [
-      "2024_OECD_Development-Finance-for-Gender-Equality.pdf"
-    ],
-    "needs_review": false,
-    "audience": "dfi,fund_manager",
-    "use_case": "This document is best used for understanding the current landscape of development finance related to gender equality, including trends and recommendations for improvement.",
-    "depth_type": "data_report",
-    "topic_tags": [
-      "policy_context",
-      "blended_finance",
-      "monitoring_reporting",
-      "evidence_collection",
-      "investor_reporting"
-    ],
-    "quality_tier": "tier_1",
-    "best_for": "Best for policymakers and development finance practitioners trying to enhance gender equality through financial strategies.",
-    "enriched_at": "2026-03-20T12:13:42.823674+00:00"
-  },
   "2024_UN-Women_empowering-women-building-sustainable-assets": {
     "title": "Strengthening the depth of gender lens investing across asset classes",
     "publisher": "UN Women",
