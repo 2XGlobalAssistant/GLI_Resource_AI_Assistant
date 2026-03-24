@@ -1,66 +1,4 @@
 {
-  "2012_UN-Women_Gender-Bonds-Report-Update2025": {
-    "title": "UN Women Gender Bonds Report Update",
-    "publisher": "FSD Africa",
-    "year": 2025,
-    "url": null,
-    "confidence": "high",
-    "evidence": {
-      "title_snippet": "A TOOLKIT FOR THE DESIGN AND ISSUANCE OF GENDER BONDS IN AFRICA GENDER BONDS PREPARED BY:",
-      "publisher_snippet": "FSD Africa is a specialist development agency",
-      "year_snippet": "Established in 2012 and supported by UK aid",
-      "url_snippet": null
-    },
-    "notes": null,
-    "resource_id": "2012_UN-Women_Gender-Bonds-Report-Update2025",
-    "filenames": [
-      "2012_UN-Women_Gender-Bonds-Report-Update2025.pdf"
-    ],
-    "needs_review": false,
-    "audience": "bank,fund_manager",
-    "use_case": "This document is best used as a comprehensive toolkit for designing and issuing gender bonds in Africa, providing practical guidance and insights for stakeholders involved in gender lens investing.",
-    "depth_type": "toolkit",
-    "topic_tags": [
-      "gender_bonds",
-      "transaction_structuring",
-      "technical_assistance",
-      "policy_context"
-    ],
-    "quality_tier": "tier_2",
-    "best_for": "Best for investors and policymakers trying to implement gender bonds effectively in African markets.",
-    "enriched_at": "2026-03-20T12:08:30.078124+00:00"
-  },
-  "2012_UN-Women_a-toolkit-for-the-design-and-issuance-of-gender-bonds-in-africa-en": {
-    "title": "A Toolkit for the Design and Issuance of Gender Bonds in Africa",
-    "publisher": "UN Women",
-    "year": 2012,
-    "url": null,
-    "confidence": "high",
-    "evidence": {
-      "title_snippet": "A TOOLKIT FOR THE DESIGN AND ISSUANCE OF GENDER BONDS IN AFRICA",
-      "publisher_snippet": "UN Women is the UN organisation dedicated to gender equality and the empowerment of women.",
-      "year_snippet": "Established in 2012 and supported by UK aid",
-      "url_snippet": null
-    },
-    "notes": null,
-    "resource_id": "2012_UN-Women_a-toolkit-for-the-design-and-issuance-of-gender-bonds-in-africa-en",
-    "filenames": [
-      "2012_UN-Women_a-toolkit-for-the-design-and-issuance-of-gender-bonds-in-africa-en.pdf"
-    ],
-    "needs_review": false,
-    "audience": "bank,fund_manager",
-    "use_case": "This document is best used as a practical guide for organizations and stakeholders interested in designing and issuing gender bonds in Africa, providing insights into the necessary steps and considerations.",
-    "depth_type": "toolkit",
-    "topic_tags": [
-      "gender_bonds",
-      "transaction_structuring",
-      "technical_assistance",
-      "policy_context"
-    ],
-    "quality_tier": "tier_2",
-    "best_for": "Best for financial institutions and development organizations trying to implement gender bond initiatives in Africa.",
-    "enriched_at": "2026-03-20T12:08:35.213006+00:00"
-  },
   "2017_UN-Women_booklet-gender-finance-2023-en": {
     "title": "UN-Women booklet-gender-finance-2023-en",
     "publisher": "United Nations Development Programme",
@@ -278,38 +216,6 @@
     "quality_tier": "tier_1",
     "best_for": "Best for fund managers trying to integrate gender-smart strategies into their investment processes.",
     "enriched_at": "2026-03-20T12:09:03.092039+00:00"
-  },
-  "2020_OECD_Blended-Finance-for-Gender-Lens-Investing-Final": {
-    "title": "Blended Finance for Gender Lens Investing",
-    "publisher": "OECD",
-    "year": 2020,
-    "url": null,
-    "confidence": "high",
-    "evidence": {
-      "title_snippet": "This technical brief is intended to serve as a practical guide for integrating gender lens investing in development programs.",
-      "publisher_snippet": "Organisation for Economic Co-operation and Development (OECD)",
-      "year_snippet": "2020",
-      "url_snippet": null
-    },
-    "notes": null,
-    "resource_id": "2020_OECD_Blended-Finance-for-Gender-Lens-Investing-Final",
-    "filenames": [
-      "2020_OECD_Blended-Finance-for-Gender-Lens-Investing-Final.pdf"
-    ],
-    "needs_review": false,
-    "audience": "dfi,fund_manager",
-    "use_case": "This document is best used as a practical guide for development practitioners looking to integrate gender lens investing into their programs and proposals.",
-    "depth_type": "how_to_guide",
-    "topic_tags": [
-      "blended_finance",
-      "technical_assistance",
-      "transaction_structuring",
-      "entrepreneurship_ownership",
-      "policy_context"
-    ],
-    "quality_tier": "tier_2",
-    "best_for": "Best for development practitioners trying to integrate gender lens investing into their project designs.",
-    "enriched_at": "2026-03-20T12:09:09.216687+00:00"
   },
   "2025_UK-Government_GEDSI-Toolkit": {
     "title": "GEDSI-Lens Toolkit for Infrastructure Project Developers",
@@ -561,22 +467,22 @@
     "best_for": "Best for institutional investors trying to implement standardized DEI monitoring practices.",
     "enriched_at": "2026-03-20T12:09:42.083297+00:00"
   },
-  "2021_ILPA_Heading-for-Change-Climate-Gender-DDQ": {
-    "title": "ILPA Heading for Change Climate Gender DDQ",
-    "publisher": "ILPA",
+  "2021_Heading-for-Change_Climate-Gender-DDQ_1": {
+    "title": "Climate Gender DDQ",
+    "publisher": "Heading for Change",
     "year": 2021,
     "url": null,
     "confidence": "high",
     "evidence": {
-      "title_snippet": "Heading for Change Climate & Gender Due Diligence Questionnaire",
+      "title_snippet": "Gender Due Diligence Questionnaire",
       "publisher_snippet": "we have co-created the DDQ with our Global Advisory Circle",
-      "year_snippet": "In this guide, we provide a brief overview of Heading for Change's (\"HfC\") due diligence process",
+      "year_snippet": "In this guide, we provide a brief overview of Heading for Change's due diligence process",
       "url_snippet": null
     },
     "notes": null,
-    "resource_id": "2021_ILPA_Heading-for-Change-Climate-Gender-DDQ",
+    "resource_id": "2021_Heading-for-Change_Climate-Gender-DDQ_1",
     "filenames": [
-      "2021_ILPA_Heading-for-Change-Climate-Gender-DDQ.pdf"
+      "2021_Heading-for-Change_Climate-Gender-DDQ_1.pdf"
     ],
     "needs_review": false,
     "audience": "fund_manager",
@@ -590,67 +496,6 @@
     "quality_tier": "tier_2",
     "best_for": "Best for investors trying to enhance their due diligence frameworks with a focus on climate and gender integration.",
     "enriched_at": "2026-03-20T12:09:46.316142+00:00"
-  },
-  "2021_ILPA_Heading-for-Change-Climate-Gender-DDQ_1": {
-    "title": "ILPA Heading for Change Climate: Gender DDQ",
-    "publisher": "ILPA",
-    "year": 2021,
-    "url": null,
-    "confidence": "high",
-    "evidence": {
-      "title_snippet": "Heading for Change Climate & Gender Due Diligence Questionnaire",
-      "publisher_snippet": "we have co-created the DDQ with our Global Advisory Circle",
-      "year_snippet": "2021",
-      "url_snippet": null
-    },
-    "notes": null,
-    "resource_id": "2021_ILPA_Heading-for-Change-Climate-Gender-DDQ_1",
-    "filenames": [
-      "2021_ILPA_Heading-for-Change-Climate-Gender-DDQ_1.pdf"
-    ],
-    "needs_review": false,
-    "audience": "fund_manager",
-    "use_case": "This document is best used as a guide for investors looking to integrate gender and climate considerations into their due diligence processes.",
-    "depth_type": "how_to_guide",
-    "topic_tags": [
-      "due_diligence",
-      "monitoring_reporting",
-      "investor_reporting"
-    ],
-    "quality_tier": "tier_2",
-    "best_for": "Best for investors trying to enhance their due diligence practices with a focus on gender and climate integration.",
-    "enriched_at": "2026-03-20T12:09:50.402761+00:00"
-  },
-  "2021_ILPA_ILPA-DDQ-20-1": {
-    "title": "ILPA Due Diligence Questionnaire 2.0",
-    "publisher": "ILPA",
-    "year": 2021,
-    "url": null,
-    "confidence": "high",
-    "evidence": {
-      "title_snippet": "ILPA Due Diligence Questionnaire 2.0 Updated November 2021",
-      "publisher_snippet": "Institutional Limited Partners Association",
-      "year_snippet": "Updated November 2021",
-      "url_snippet": null
-    },
-    "notes": null,
-    "resource_id": "2021_ILPA_ILPA-DDQ-20-1",
-    "filenames": [
-      "2021_ILPA_ILPA-DDQ-20-1.pdf"
-    ],
-    "needs_review": false,
-    "audience": "fund_manager",
-    "use_case": "This document is best used as a standardized tool for institutional investors to streamline their due diligence process when evaluating private equity funds.",
-    "depth_type": "toolkit",
-    "topic_tags": [
-      "due_diligence",
-      "fund_structure",
-      "investor_reporting",
-      "monitoring_reporting"
-    ],
-    "quality_tier": "tier_1",
-    "best_for": "Best for institutional investors trying to enhance their due diligence processes with a standardized questionnaire.",
-    "enriched_at": "2026-03-20T12:09:54.059235+00:00"
   },
   "2021_ILPA_ILPA-DDQ-20_1": {
     "title": "ILPA Due Diligence Questionnaire 2.0",
@@ -683,9 +528,9 @@
     "best_for": "Best for institutional investors trying to enhance their due diligence processes with a standardized questionnaire.",
     "enriched_at": "2026-03-20T12:09:57.707934+00:00"
   },
-  "2021_ILPA_JEDI-Investing-Measurement-Indicators": {
+  "2021_GenderSmart_JEDI-Investing-Measurement-Indicators": {
     "title": "ILPA JEDI Investing Measurement Indicators",
-    "publisher": "ILPA",
+    "publisher": "GenderSmart",
     "year": 2021,
     "url": null,
     "confidence": "high",
@@ -696,9 +541,9 @@
       "url_snippet": null
     },
     "notes": null,
-    "resource_id": "2021_ILPA_JEDI-Investing-Measurement-Indicators",
+    "resource_id": "2021_GenderSmart_JEDI-Investing-Measurement-Indicators",
     "filenames": [
-      "2021_ILPA_JEDI-Investing-Measurement-Indicators.pdf"
+      "2021_GenderSmart_JEDI-Investing-Measurement-Indicators.pdf"
     ],
     "needs_review": false,
     "audience": "fund_manager",
@@ -713,7 +558,7 @@
     "best_for": "Best for investors trying to implement and measure JEDI principles in their investment strategies.",
     "enriched_at": "2026-03-20T12:10:01.308326+00:00"
   },
-  "2021_ILPA_JEDI-Principles-in-Action-Asset-Managers": {
+  "2021_GenderSmart_JEDI-Principles-in-Action-Asset-Managers": {
     "title": "JEDI Principles in Action Asset Managers",
     "publisher": "GenderSmart",
     "year": 2021,
@@ -726,9 +571,9 @@
       "url_snippet": null
     },
     "notes": null,
-    "resource_id": "2021_ILPA_JEDI-Principles-in-Action-Asset-Managers",
+    "resource_id": "2021_GenderSmart_JEDI-Principles-in-Action-Asset-Managers",
     "filenames": [
-      "2021_ILPA_JEDI-Principles-in-Action-Asset-Managers.pdf"
+      "2021_GenderSmart_JEDI-Principles-in-Action-Asset-Managers.pdf"
     ],
     "needs_review": false,
     "audience": "general",
@@ -744,7 +589,7 @@
     "best_for": "Best for asset managers trying to integrate JEDI principles into their investment strategies.",
     "enriched_at": "2026-03-20T12:10:04.982120+00:00"
   },
-  "2021_ILPA_JEDI-Principles-in-Action-Asset-Owners": {
+  "2021_GenderSmart_JEDI-Principles-in-Action-Asset-Owners": {
     "title": "JEDI Principles in Action Asset Owners",
     "publisher": "GenderSmart",
     "year": 2021,
@@ -757,9 +602,9 @@
       "url_snippet": null
     },
     "notes": null,
-    "resource_id": "2021_ILPA_JEDI-Principles-in-Action-Asset-Owners",
+    "resource_id": "2021_GenderSmart_JEDI-Principles-in-Action-Asset-Owners",
     "filenames": [
-      "2021_ILPA_JEDI-Principles-in-Action-Asset-Owners.pdf"
+      "2021_GenderSmart_JEDI-Principles-in-Action-Asset-Owners.pdf"
     ],
     "needs_review": false,
     "audience": "fund_manager",
@@ -806,7 +651,7 @@
     "best_for": "Best for family offices and foundations trying to implement JEDI investing principles and measure their impact.",
     "enriched_at": "2026-03-20T12:10:12.228038+00:00"
   },
-  "2021_ILPA_JEDI-Principles-in-Action-Wealth-Managers": {
+  "2021_GenderSmart_JEDI-Principles-in-Action-Wealth-Managers": {
     "title": "JEDI Principles in Action Wealth Managers",
     "publisher": "GenderSmart",
     "year": 2021,
@@ -819,9 +664,9 @@
       "url_snippet": null
     },
     "notes": null,
-    "resource_id": "2021_ILPA_JEDI-Principles-in-Action-Wealth-Managers",
+    "resource_id": "2021_GenderSmart_JEDI-Principles-in-Action-Wealth-Managers",
     "filenames": [
-      "2021_ILPA_JEDI-Principles-in-Action-Wealth-Managers.pdf"
+      "2021_GenderSmart_JEDI-Principles-in-Action-Wealth-Managers.pdf"
     ],
     "needs_review": false,
     "audience": "fund_manager",
@@ -837,7 +682,7 @@
     "best_for": "Best for wealth managers trying to integrate JEDI investing principles into their practices.",
     "enriched_at": "2026-03-20T12:10:16.166743+00:00"
   },
-  "2021_ILPA_JEDI-Systemic-Barriers-and-Biases": {
+  "2021_GenderSmart_JEDI-Systemic-Barriers-and-Biases": {
     "title": "JEDI Systemic Barriers and Biases",
     "publisher": "GenderSmart",
     "year": 2021,
@@ -850,9 +695,9 @@
       "url_snippet": null
     },
     "notes": null,
-    "resource_id": "2021_ILPA_JEDI-Systemic-Barriers-and-Biases",
+    "resource_id": "2021_GenderSmart_JEDI-Systemic-Barriers-and-Biases",
     "filenames": [
-      "2021_ILPA_JEDI-Systemic-Barriers-and-Biases.pdf"
+      "2021_GenderSmart_JEDI-Systemic-Barriers-and-Biases.pdf"
     ],
     "needs_review": false,
     "audience": "general",
@@ -866,7 +711,7 @@
     "best_for": "Best for investors trying to understand and address systemic biases in their investment strategies.",
     "enriched_at": "2026-03-20T12:10:19.803283+00:00"
   },
-  "2021_JEDI-Toolkit-Asset-Class-Framework": {
+  "2021_GenderSmart_JEDI-Toolkit-Asset-Class-Framework": {
     "title": "Gender Lens Investing Framework Glossary",
     "publisher": "Calvert Impact Capital",
     "year": 2021,
@@ -879,9 +724,9 @@
       "url_snippet": null
     },
     "notes": null,
-    "resource_id": "2021_JEDI-Toolkit-Asset-Class-Framework",
+    "resource_id": "2021_GenderSmart_JEDI-Toolkit-Asset-Class-Framework",
     "filenames": [
-      "2021_JEDI-Toolkit-Asset-Class-Framework.pdf"
+      "2021_GenderSmart_JEDI-Toolkit-Asset-Class-Framework.pdf"
     ],
     "needs_review": false,
     "audience": "general",
@@ -927,7 +772,7 @@
     "best_for": "Best for investment firms trying to enhance their diversity and equity practices through structured assessments.",
     "enriched_at": "2026-03-20T12:10:27.355760+00:00"
   },
-  "2021_genderlensinvesting-legalperspectives-2021": {
+  "2021_GenderSmart_Legal_Perspectives-2021": {
     "title": "Gender Lens Investing: Legal Perspectives",
     "publisher": "NYU Law",
     "year": 2021,
@@ -940,9 +785,9 @@
       "url_snippet": null
     },
     "notes": null,
-    "resource_id": "2021_genderlensinvesting-legalperspectives-2021",
+    "resource_id": "2021_GenderSmart_Legal_Perspectives-2021",
     "filenames": [
-      "2021_genderlensinvesting-legalperspectives-2021.pdf"
+      "2021_GenderSmart_Legal_Perspectives-2021.pdf"
     ],
     "needs_review": false,
     "audience": "general",
@@ -1112,37 +957,6 @@
     "quality_tier": "tier_1",
     "best_for": "Best for development finance professionals trying to leverage blended finance for gender equality initiatives.",
     "enriched_at": "2026-03-20T12:12:37.785463+00:00"
-  },
-  "2022_OECD_b632a3eb-en": {
-    "title": "Blended finance for gender equality and the empowerment of women and girls",
-    "publisher": "OECD",
-    "year": 2022,
-    "url": null,
-    "confidence": "high",
-    "evidence": {
-      "title_snippet": "Blended finance for gender equality and the empowerment of women and girls",
-      "publisher_snippet": "OECD Publishing",
-      "year_snippet": "March 2022",
-      "url_snippet": null
-    },
-    "notes": null,
-    "resource_id": "2022_OECD_b632a3eb-en",
-    "filenames": [
-      "2022_OECD_b632a3eb-en.pdf"
-    ],
-    "needs_review": false,
-    "audience": "dfi,fund_manager",
-    "use_case": "This document is best used for understanding the role of blended finance in promoting gender equality and women's empowerment, supported by data from a comprehensive survey.",
-    "depth_type": "data_report",
-    "topic_tags": [
-      "blended_finance",
-      "transaction_structuring",
-      "evidence_collection",
-      "policy_context"
-    ],
-    "quality_tier": "tier_1",
-    "best_for": "Best for development finance professionals trying to leverage blended finance for gender equality initiatives.",
-    "enriched_at": "2026-03-20T12:12:41.956904+00:00"
   },
   "2022_Pakistan-Private-Sector-Energy-Project_Gender-Lens-Investing-for-Financial-Institutions-Toolkit": {
     "title": "Pakistan Private Sector Energy Project Gender Lens Investing for Financial Institutions Toolkit",
@@ -2117,6 +1931,37 @@
     "best_for": "Best for asset managers trying to assess their voting practices and align them with environmental and social initiatives.",
     "enriched_at": "2026-03-20T12:14:48.739092+00:00"
   },
+    "2025_UN-Women_a-toolkit-for-the-design-and-issuance-of-gender-bonds-in-africa-en": {
+    "title": "A Toolkit for the Design and Issuance of Gender Bonds in Africa",
+    "publisher": "UN Women",
+    "year": 2012,
+    "url": null,
+    "confidence": "high",
+    "evidence": {
+      "title_snippet": "A TOOLKIT FOR THE DESIGN AND ISSUANCE OF GENDER BONDS IN AFRICA",
+      "publisher_snippet": "UN Women is the UN organisation dedicated to gender equality and the empowerment of women.",
+      "year_snippet": "Established in 2012 and supported by UK aid",
+      "url_snippet": null
+    },
+    "notes": null,
+    "resource_id": "2025_UN-Women_a-toolkit-for-the-design-and-issuance-of-gender-bonds-in-africa-en",
+    "filenames": [
+      "2025_UN-Women_a-toolkit-for-the-design-and-issuance-of-gender-bonds-in-africa-en.pdf"
+    ],
+    "needs_review": false,
+    "audience": "bank,fund_manager",
+    "use_case": "This document is best used as a practical guide for organizations and stakeholders interested in designing and issuing gender bonds in Africa, providing insights into the necessary steps and considerations.",
+    "depth_type": "toolkit",
+    "topic_tags": [
+      "gender_bonds",
+      "transaction_structuring",
+      "technical_assistance",
+      "policy_context"
+    ],
+    "quality_tier": "tier_2",
+    "best_for": "Best for financial institutions and development organizations trying to implement gender bond initiatives in Africa.",
+    "enriched_at": "2026-03-20T12:08:35.213006+00:00"
+  },
   "2025_UN-Women_scaling-up-innovative-finance-for-gender-equality-and-womens-empowerment-en": {
     "title": "Scaling up Innovative Finance for Gender Equality",
     "publisher": "UN Women",
@@ -2179,35 +2024,4 @@
     "best_for": "Best for investors trying to align their capital with gender-lens investment strategies.",
     "enriched_at": "2026-03-20T12:14:56.210221+00:00"
   },
-  "2025_World-Bank_ubs-gender-lens-investment-2025-1": {
-    "title": "Gender-lens investment: The state of women in 2025",
-    "publisher": "UBS",
-    "year": 2025,
-    "url": null,
-    "confidence": "high",
-    "evidence": {
-      "title_snippet": "Gender-lens investment: The state of women in 2025",
-      "publisher_snippet": "This report was produced by UBS Switzerland AG and UBS Financial Services Inc.",
-      "year_snippet": "Publication date: 3 March 2025",
-      "url_snippet": null
-    },
-    "notes": null,
-    "resource_id": "2025_World-Bank_ubs-gender-lens-investment-2025-1",
-    "filenames": [
-      "2025_World-Bank_ubs-gender-lens-investment-2025-1.pdf"
-    ],
-    "needs_review": false,
-    "audience": "general",
-    "use_case": "This document is best used for understanding the current state of gender-lens investing and the socio-economic progress of women as of 2025, providing insights into investment opportunities that support women's advancement.",
-    "depth_type": "data_report",
-    "topic_tags": [
-      "returns_data",
-      "benchmarks",
-      "investor_reporting",
-      "evidence_collection"
-    ],
-    "quality_tier": "tier_1",
-    "best_for": "Best for investors and policymakers trying to understand the landscape of gender-lens investing and its impact on women's economic empowerment.",
-    "enriched_at": "2026-03-20T12:15:00.118573+00:00"
-  }
 }
